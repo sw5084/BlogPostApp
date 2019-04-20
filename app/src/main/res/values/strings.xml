@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">BlogPostApplication</string>
+
+    <string name="baseURL">http://cms.iversoft.ca</string>
+    <string name="authenticate">api/authenticate</string>
+    <string name="newUser">api/users/new</string>
+    <string name="bloglist">api/blog/list</string>
+    <string name="blogitem">api/blog/single/</string>
 </resources>
