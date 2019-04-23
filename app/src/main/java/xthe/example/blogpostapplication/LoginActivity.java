@@ -1,6 +1,7 @@
 package xthe.example.blogpostapplication;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,14 +13,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class LoginActivity extends AppCompatActivity {
+
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private static final int REQUEST_RESETPASSWORD = 1;
 
     EditText emailText;
     EditText passwordText;
     Button loginButton;
     TextView signupLink;
+    TextView passwordResetLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.input_password);
         loginButton = findViewById(R.id.btn_login);
         signupLink = findViewById(R.id.link_signup);
+        passwordResetLink = findViewById(R.id.link_recoverpassword);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -48,6 +56,29 @@ public class LoginActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
+
+        passwordResetLink.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // Start the PasswordReset activity
+                Intent intent = new Intent(getApplicationContext(), PasswordResetActivity.class);
+                startActivityForResult(intent, REQUEST_RESETPASSWORD);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check if user is already logged in
+        SharedPreferences preferences=getSharedPreferences("BlogUserInfo",MODE_PRIVATE);
+        String user_token = preferences.getString("user_token", "");
+        if (!user_token.isEmpty()){
+            finish();
+        }
+
     }
 
     public void login() {
@@ -69,14 +100,32 @@ public class LoginActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        // TODO: Implement authentication logic here.
+        // Make call to API server to check if username and password is correct
+        APICaller caller = new APICaller(null);
+        final JSONObject response = caller.authenticateUser(email, password);
+
+        // TODO: Remove test code after finish debugging
+        //final JSONObject response = caller.getBlogPostList(0, 5, null);
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
                         // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
+                        if (response == null){
+                            onLoginFailed();
+                        } else {
+                            try {
+                                String token = response.getString("token");
+                                if (token == null || token.isEmpty()){
+                                    onLoginFailed();
+                                } else {
+                                    onLoginSuccess(response);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                onLoginFailed();
+                            }
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -87,10 +136,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
-                // TODO: Implement successful signup logic here
                 // By default we just finish the Activity and log them in automatically
                 this.finish();
+            }
+        } else if (requestCode == REQUEST_RESETPASSWORD) {
+            if (resultCode == RESULT_OK) {
+                // Password reset success, but nothing needs to be done
             }
         }
     }
@@ -101,7 +152,21 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void onLoginSuccess() {
+    public void onLoginSuccess(JSONObject response) {
+        try {
+            String token = response.getString("token");
+
+            SharedPreferences preferences=getSharedPreferences("BlogUserInfo",MODE_PRIVATE);
+            SharedPreferences.Editor editor=preferences.edit();
+
+            editor.putString("user_token", token);
+            editor.putBoolean("IsLogin",true);
+            editor.commit();
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
         loginButton.setEnabled(true);
         finish();
     }

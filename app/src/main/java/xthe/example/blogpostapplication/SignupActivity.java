@@ -1,6 +1,7 @@
 package xthe.example.blogpostapplication;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -9,6 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class SignupActivity extends AppCompatActivity {
@@ -68,28 +72,56 @@ public class SignupActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
 
         // TODO: Implement signup logic here.
+        APICaller caller = new APICaller(null);
+        final JSONObject response = caller.signup(name, email, password);
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
                         // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
+                        if (response == null){
+                            onSignupFailed();
+                        } else {
+                            try {
+                                String token = response.getString("token");
+                                if (token == null || token.isEmpty()){
+                                    onSignupFailed();
+                                } else {
+                                    onSignupSuccess(response);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                onSignupFailed();
+                            }
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);
     }
 
 
-    public void onSignupSuccess() {
+    public void onSignupSuccess(JSONObject response) {
+        try {
+            String token = response.getString("token");
+
+            SharedPreferences preferences=getSharedPreferences("BlogUserInfo",MODE_PRIVATE);
+            SharedPreferences.Editor editor=preferences.edit();
+
+            editor.putString("user_token", token);
+            editor.putBoolean("IsLogin",true);
+            editor.commit();
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+
         signupButton.setEnabled(true);
         setResult(RESULT_OK, null);
         finish();
     }
 
     public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Sign-up failed", Toast.LENGTH_LONG).show();
 
         signupButton.setEnabled(true);
     }
@@ -101,8 +133,8 @@ public class SignupActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        if (name.isEmpty() || name.length() < 3) {
-            nameText.setError("at least 3 characters");
+        if (name.isEmpty() || name.length() < 2) {
+            nameText.setError("at least 2 characters");
             valid = false;
         } else {
             nameText.setError(null);
@@ -115,8 +147,8 @@ public class SignupActivity extends AppCompatActivity {
             emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 6 || password.length() > 20) {
+            passwordText.setError("between 6 and 20 alphanumeric characters");
             valid = false;
         } else {
             passwordText.setError(null);
