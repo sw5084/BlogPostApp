@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         // Inflate view with content if user is logged in
         checkUserLogin();
         if (!user_token.isEmpty()){
-            inflateBlogList(user_token);
+            inflateBlogList(user_token, null);
         }
         // inflateTestArrayList();
     }
@@ -69,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.userprofile:
                 // Launch user profile page
+                return true;
+            case R.id.refreshlist:
+                // Refresh Blog Post List
+                inflateBlogList(user_token, null);
                 return true;
             case R.id.signout:
                 // Delete token
@@ -97,13 +101,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     // View related functions
-    private void inflateBlogList(String user_token) {
+    private void inflateBlogList(String user_token, Integer limit) {
+        if (limit == null) {
+            limit = 0;
+        }
         APICaller caller = new APICaller(user_token);
-        JSONObject json = caller.getBlogPostList(0, 0, null);
+        JSONObject json = caller.getBlogPostList(0, limit, null);
         ArrayList<BlogPost> blogPosts = BlogPost.parseBlogPostItems(json);
         BlogPostAdapter blogPostAdapter = new BlogPostAdapter(getBaseContext(), blogPosts);
         ListView blogPostsListView = (ListView) findViewById(R.id.blogpost_view);
         blogPostsListView.setAdapter(blogPostAdapter);
+
+        blogPostAdapter.notifyDataSetChanged();
     }
 
 
