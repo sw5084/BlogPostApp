@@ -16,9 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".SignupActivity"></activity>
-        <activity android:name=".PasswordResetActivity"></activity>
+        <activity android:name=".authenticate.LoginActivity"></activity>
+        <activity android:name=".authenticate.SignupActivity"></activity>
+        <activity android:name=".authenticate.PasswordResetActivity"></activity>
+        <activity android:name=".blogpost.BlogPostItemActivity"></activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

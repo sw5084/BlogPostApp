@@ -1,4 +1,4 @@
-package xthe.example.blogpostapplication;
+package xthe.example.blogpostapplication.authenticate;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -13,6 +13,9 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import xthe.example.blogpostapplication.R;
+import xthe.example.blogpostapplication.helper.APICaller;
 
 
 public class SignupActivity extends AppCompatActivity {
@@ -72,7 +75,7 @@ public class SignupActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
 
         // TODO: Implement signup logic here.
-        APICaller caller = new APICaller(null);
+        APICaller caller = new APICaller(null, this);
         final JSONObject response = caller.signup(name, email, password);
 
         new android.os.Handler().postDelayed(
@@ -90,6 +93,7 @@ public class SignupActivity extends AppCompatActivity {
                                     onSignupSuccess(response);
                                 }
                             } catch (JSONException e) {
+                                Log.e(TAG, e.getMessage());
                                 e.printStackTrace();
                                 onSignupFailed();
                             }
@@ -112,6 +116,7 @@ public class SignupActivity extends AppCompatActivity {
             editor.commit();
 
         } catch (JSONException e){
+            Log.e(TAG, e.getMessage());
             e.printStackTrace();
         }
 

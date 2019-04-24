@@ -1,6 +1,9 @@
-package xthe.example.blogpostapplication;
+package xthe.example.blogpostapplication.helper;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -13,6 +16,11 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
+
+import xthe.example.blogpostapplication.MainActivity;
+import xthe.example.blogpostapplication.authenticate.LoginActivity;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class APICaller {
@@ -27,6 +35,7 @@ public class APICaller {
     private static final String RECOVERPASSWORD = "api/users/resetpassword";
     private static final String BLOGLIST = "api/blog/list";
     private static final String BLOGPOST = "api/blog/single";
+    private static final String USERLIST = "api/users/list";
 
     private static final int REQUEST_API_KEY = 0;
     private static final int REQUEST_USER_TOKEN = 1;
@@ -39,10 +48,12 @@ public class APICaller {
     private int requestType = 0;
     private String user_token;
     private HttpConnectionAsyncTask connect;
+    private Context context;
 
 
     // Constructor
-    public APICaller (String user_token) {
+    public APICaller (String user_token, Context context) {
+        this.context = context;
         if (user_token != null && !user_token.isEmpty()){
             //User initialized, use this user to authenticate future request.
             this.user_token = user_token;
@@ -72,10 +83,12 @@ public class APICaller {
             connect = new HttpConnectionAsyncTask();
             responseMsg = connect.execute(url, params).get();
 
-        } catch (ExecutionException ee) {
-            ee.printStackTrace();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
+        } catch (ExecutionException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return responseMsg;
     }
@@ -98,10 +111,12 @@ public class APICaller {
             connect = new HttpConnectionAsyncTask();
             responseMsg = connect.execute(url, params).get();
 
-        } catch (ExecutionException ee) {
-            ee.printStackTrace();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
+        } catch (ExecutionException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return responseMsg;
     }
@@ -122,10 +137,12 @@ public class APICaller {
             connect = new HttpConnectionAsyncTask();
             responseMsg = connect.execute(url, params).get();
 
-        } catch (ExecutionException ee) {
-            ee.printStackTrace();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
+        } catch (ExecutionException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return responseMsg;
     }
@@ -148,10 +165,37 @@ public class APICaller {
             connect = new HttpConnectionAsyncTask();
             responseMsg = connect.execute(url, params).get();
 
-        } catch (ExecutionException ee) {
-            ee.printStackTrace();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
+        } catch (ExecutionException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return responseMsg;
+    }
+
+
+    public JSONObject getUserList(Integer offset, Integer limit) {
+        requestType = REQUEST_TYPE_GET;
+
+        JSONObject responseMsg = null;
+
+        try {
+            String url = generateURL(USERLIST);
+            String params = "";
+            // Method is get, key value directly append to url
+            String urlparams = "?offset=" + offset + "&limit=" + limit;
+            url = url + urlparams;
+            connect = new HttpConnectionAsyncTask();
+            responseMsg = connect.execute(url, params).get();
+
+        } catch (ExecutionException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return responseMsg;
     }
@@ -238,8 +282,7 @@ public class APICaller {
 
                 urlConnection.connect();
 
-//                if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK)
-                if (urlConnection.getResponseCode() != 0)
+                if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK)
                 {
                     StringBuilder response  = new StringBuilder();
                     BufferedReader input = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()),8192);
@@ -250,11 +293,23 @@ public class APICaller {
                     }
                     input.close();
                     responseMsg = new JSONObject(response.toString());
+                } else if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    if (requestMode == REQUEST_USER_TOKEN) {
+                        // Token is probably expired, ask the user to login again
+                        // Delete token
+                        SharedPreferences preferences = context.getSharedPreferences("BlogUserInfo",MODE_PRIVATE);
+                        SharedPreferences.Editor editor=preferences.edit();
+
+                        editor.putString("user_token", "");
+                        editor.putBoolean("IsLogin",false);
+                        editor.commit();
+                    }
                 }
 
                 urlConnection.disconnect();
 
             } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
                 e.printStackTrace();
             }
             return responseMsg;

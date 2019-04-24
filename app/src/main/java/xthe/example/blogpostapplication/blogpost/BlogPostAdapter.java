@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import xthe.example.blogpostapplication.R;
 
 public class BlogPostAdapter extends ArrayAdapter {
+    public static final String TAG = "BlogPostAdapter";
+
     public BlogPostAdapter (Context context, ArrayList<BlogPost> postArray) {
         super(context, 0, postArray);
     }

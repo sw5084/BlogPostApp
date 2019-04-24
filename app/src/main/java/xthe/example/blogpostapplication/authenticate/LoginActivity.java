@@ -1,4 +1,4 @@
-package xthe.example.blogpostapplication;
+package xthe.example.blogpostapplication.authenticate;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -15,6 +15,9 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import xthe.example.blogpostapplication.R;
+import xthe.example.blogpostapplication.helper.APICaller;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -101,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
 
         // Make call to API server to check if username and password is correct
-        APICaller caller = new APICaller(null);
+        APICaller caller = new APICaller(null, this);
         final JSONObject response = caller.authenticateUser(email, password);
 
         // TODO: Remove test code after finish debugging
@@ -122,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                                     onLoginSuccess(response);
                                 }
                             } catch (JSONException e) {
+                                Log.e(TAG, e.getMessage());
                                 e.printStackTrace();
                                 onLoginFailed();
                             }
@@ -164,6 +168,7 @@ public class LoginActivity extends AppCompatActivity {
             editor.commit();
 
         } catch (JSONException e){
+            Log.e(TAG, e.getMessage());
             e.printStackTrace();
         }
 

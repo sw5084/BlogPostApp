@@ -1,4 +1,4 @@
-package xthe.example.blogpostapplication;
+package xthe.example.blogpostapplication.authenticate;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -11,6 +11,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
+
+import xthe.example.blogpostapplication.R;
+import xthe.example.blogpostapplication.helper.APICaller;
 
 public class PasswordResetActivity extends AppCompatActivity {
     private static final String TAG = "PasswordResetActivity";
@@ -63,7 +66,7 @@ public class PasswordResetActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
 
         // TODO: Implement password reset logic here.
-        APICaller caller = new APICaller(null);
+        APICaller caller = new APICaller(null, this);
         final JSONObject response = caller.recoverPassword(email);
 
         new android.os.Handler().postDelayed(
