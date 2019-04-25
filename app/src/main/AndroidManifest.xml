@@ -20,6 +20,7 @@
         <activity android:name=".authenticate.SignupActivity"></activity>
         <activity android:name=".authenticate.PasswordResetActivity"></activity>
         <activity android:name=".blogpost.BlogPostItemActivity"></activity>
+        <activity android:name=".user.UserProfileActivity"></activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

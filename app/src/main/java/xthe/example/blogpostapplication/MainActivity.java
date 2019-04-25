@@ -23,6 +23,7 @@ import xthe.example.blogpostapplication.blogpost.BlogPostAdapter;
 import xthe.example.blogpostapplication.blogpost.BlogPostItemActivity;
 import xthe.example.blogpostapplication.helper.APICaller;
 import xthe.example.blogpostapplication.user.User;
+import xthe.example.blogpostapplication.user.UserProfileActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,11 +34,17 @@ public class MainActivity extends AppCompatActivity {
             ;
     private static final int REQUEST_LOGIN = 0;
     private static final int REQUEST_SHOWPOST = 1;
+    private static final int REQUEST_USER_PROFILE = 2;
+
+
+    private static final int ALL_POST_MODE = 0;
+    private static final int MY_POST_MODE = 1;
 
 
     private String user_token = "";
     private ArrayList<User> userList = new ArrayList<User>();
     private User currentUser = null;
+    private Integer postMode = ALL_POST_MODE;
 
 
     @Override
@@ -66,9 +73,11 @@ public class MainActivity extends AppCompatActivity {
         checkUserLogin();
         if (!user_token.isEmpty()){
             // Inflate view with content if user is logged in
-            inflateBlogList(user_token, null);
+            inflateBlogListForPostMode();
             // Populate the user list once the user is logged in
             getUserList();
+            // Set current user's detail.
+            setCurrentUser();
         }
     }
 
@@ -90,12 +99,25 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case R.id.post_mode:
+                if (postMode == ALL_POST_MODE) {
+                    postMode = MY_POST_MODE;
+                    inflateBlogListForPostMode();
+                } else if (postMode == MY_POST_MODE){
+                    postMode = ALL_POST_MODE;
+                    inflateBlogListForPostMode();
+                }
+                return true;
             case R.id.userprofile:
                 // Launch user profile page
+                Intent intent = new Intent(this, UserProfileActivity.class);
+                intent.putExtra("user_name", currentUser.getName());
+                intent.putExtra("user_email", currentUser.getEmail());
+                startActivityForResult(intent, REQUEST_USER_PROFILE);
                 return true;
             case R.id.refreshlist:
                 // Refresh Blog Post List
-                inflateBlogList(user_token, null);
+                inflateBlogListForPostMode();
                 // Also refresh user list
                 getUserList();
                 return true;
@@ -126,13 +148,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     // View related functions
-    private void inflateBlogList(String user_token, Integer limit) {
+    private void inflateBlogList(String user_token, Integer limit, Integer userId) {
         // Call to server to get blog post list
         if (limit == null) {
             limit = 0;
         }
         APICaller caller = new APICaller(user_token, this);
-        JSONObject json = caller.getBlogPostList(0, limit, null);
+        JSONObject json = caller.getBlogPostList(0, limit, userId);
 
         // inflate list view
         final ArrayList<BlogPost> blogPosts = BlogPost.parseBlogPostListFromJson(json);
@@ -152,6 +174,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         blogPostAdapter.notifyDataSetChanged();
+    }
+
+
+    private void inflateBlogListForPostMode() {
+        if (postMode == ALL_POST_MODE) {
+            inflateBlogList(user_token, null, null);
+        } else if (postMode == MY_POST_MODE){
+            inflateBlogList(user_token, null, currentUser.getId());
+        }
     }
 
 
@@ -213,6 +244,20 @@ public class MainActivity extends AppCompatActivity {
         // Clear the current user list and replace it with the new value
         userList.clear();
         userList = User.parseUserListFromJson(response);
+    }
+
+    private boolean setCurrentUser() {
+        Integer userId = getSharedPreferences("BlogUserInfo", MODE_PRIVATE).getInt("user_id", 0);
+        if (userId != 0 && userList != null && userList.size() > 0) {
+            for (int i = 0; i < userList.size(); i++){
+                if (userList.get(i).getId() == userId) {
+                    currentUser = userList.get(i);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 

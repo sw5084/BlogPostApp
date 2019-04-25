@@ -37,6 +37,10 @@ public class User {
         return name;
     }
 
+    public String getEmail () {
+        return email;
+    }
+
     public static ArrayList<User> parseUserListFromJson(JSONObject jsonObject){
         ArrayList<User> userList = new ArrayList<User>();
 
