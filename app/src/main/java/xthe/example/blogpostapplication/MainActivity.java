@@ -259,22 +259,4 @@ public class MainActivity extends AppCompatActivity {
 
         return false;
     }
-
-
-    // TODO: Remove test code later
-    public void inflateTestArrayList() {
-        try {
-            JSONObject json = new JSONObject("{\"offset\":0,\"limit\":5,\"total\":5,\"remaining\":281,\"data\":[{\"id\":551,\"author\":86,\"title\":\"New Blog Title\",\"content\":\"New blog content\",\"created_at\":\"2019-03-04 21:40:23\",\"updated_at\":\"2019-04-18 22:01:15\",\"published\":1,\"views\":1,\"author_user\":{\"id\":86,\"role\":2,\"name\":\"User\",\"email\":\"user@iversoft.ca\",\"created_at\":\"2019-03-01 22:15:20\",\"updated_at\":\"2019-03-03 22:55:26\",\"gender\":null,\"biography\":\"\",\"date_of_birth\":null},\"image\":null},{\"id\":549,\"author\":87,\"title\":\"Combined Test\",\"content\":\"Logic combination - updated\",\"created_at\":\"2019-03-04 03:34:45\",\"updated_at\":\"2019-03-04 03:48:24\",\"published\":1,\"views\":0,\"author_user\":{\"id\":87,\"role\":2,\"name\":\"Andrew\",\"email\":\"andrew.burger25@gmail.com\",\"created_at\":\"2019-03-03 15:24:14\",\"updated_at\":\"2019-03-03 23:41:32\",\"gender\":null,\"biography\":\"\",\"date_of_birth\":\"2019-03-03\"},\"image\":null},{\"id\":547,\"author\":87,\"title\":\"Test - Updated\",\"content\":\"Test\",\"created_at\":\"2019-03-03 23:21:14\",\"updated_at\":\"2019-03-04 03:53:11\",\"published\":1,\"views\":0,\"author_user\":{\"id\":87,\"role\":2,\"name\":\"Andrew\",\"email\":\"andrew.burger25@gmail.com\",\"created_at\":\"2019-03-03 15:24:14\",\"updated_at\":\"2019-03-03 23:41:32\",\"gender\":null,\"biography\":\"\",\"date_of_birth\":\"2019-03-03\"},\"image\":null},{\"id\":546,\"author\":87,\"title\":\"Own Account\",\"content\":\"Test\",\"created_at\":\"2019-03-03 16:58:38\",\"updated_at\":\"2019-03-03 16:58:38\",\"published\":1,\"views\":0,\"author_user\":{\"id\":87,\"role\":2,\"name\":\"Andrew\",\"email\":\"andrew.burger25@gmail.com\",\"created_at\":\"2019-03-03 15:24:14\",\"updated_at\":\"2019-03-03 23:41:32\",\"gender\":null,\"biography\":\"\",\"date_of_birth\":\"2019-03-03\"},\"image\":null},{\"id\":545,\"author\":86,\"title\":\"First\",\"content\":\"No pic; testing update\",\"created_at\":\"2019-03-03 16:57:10\",\"updated_at\":\"2019-03-04 20:14:11\",\"published\":1,\"views\":0,\"author_user\":{\"id\":86,\"role\":2,\"name\":\"User\",\"email\":\"user@iversoft.ca\",\"created_at\":\"2019-03-01 22:15:20\",\"updated_at\":\"2019-03-03 22:55:26\",\"gender\":null,\"biography\":\"\",\"date_of_birth\":null},\"image\":null}]}");
-
-            ArrayList<BlogPost> blogPosts = BlogPost.parseBlogPostListFromJson(json);
-            BlogPostAdapter blogPostAdapter = new BlogPostAdapter(getBaseContext(), blogPosts);
-            ListView blogPostsListView = (ListView) findViewById(R.id.blogpost_view);
-            blogPostsListView.setAdapter(blogPostAdapter);
-
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage());
-            e.printStackTrace();
-        }
-
-    }
 }

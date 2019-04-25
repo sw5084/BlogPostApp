@@ -74,7 +74,6 @@ public class SignupActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        // TODO: Implement signup logic here.
         APICaller caller = new APICaller(null, this);
         final JSONObject response = caller.signup(name, email, password);
 

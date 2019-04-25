@@ -65,7 +65,6 @@ public class PasswordResetActivity extends AppCompatActivity {
 
         String email = emailText.getText().toString();
 
-        // TODO: Implement password reset logic here.
         APICaller caller = new APICaller(null, this);
         final JSONObject response = caller.recoverPassword(email);
 

@@ -107,9 +107,6 @@ public class LoginActivity extends AppCompatActivity {
         APICaller caller = new APICaller(null, this);
         final JSONObject response = caller.authenticateUser(email, password);
 
-        // TODO: Remove test code after finish debugging
-        //final JSONObject response = caller.getBlogPostList(0, 5, null);
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
